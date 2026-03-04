@@ -29,7 +29,7 @@ export async function POST(
 
   const parsed = submitSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(parsed.error.errors[0].message, 400);
+    return apiError(parsed.error.issues[0].message, 400);
   }
 
   const { code, language } = parsed.data;

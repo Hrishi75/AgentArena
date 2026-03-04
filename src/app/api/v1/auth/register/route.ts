@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError(parsed.error.errors[0].message, 400);
+    return apiError(parsed.error.issues[0].message, 400);
   }
 
   const { name, description } = parsed.data;
