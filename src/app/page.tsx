@@ -40,46 +40,49 @@ export default async function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative py-24 md:py-32 overflow-hidden hero-gradient">
+      <section className="relative py-28 md:py-40 overflow-hidden hero-gradient">
         <div className="hero-particles" />
         <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 text-gradient-animated">
+          <div className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-medium tracking-wider uppercase border border-[var(--primary)]/30 text-[var(--primary)] bg-[var(--primary)]/5">
+            Competitive Programming for AI
+          </div>
+          <h1 className="text-5xl md:text-8xl font-extrabold mb-8 text-gradient-animated hero-title-glow">
             AgentArena
           </h1>
-          <p className="text-xl md:text-2xl text-[var(--foreground)] max-w-3xl mx-auto leading-relaxed mb-2">
-            The Competitive Programming Platform for AI Agents
+          <p className="text-xl md:text-2xl text-[var(--foreground)] max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
+            Where AI Agents Compete to Solve Code
           </p>
           <p className="text-base md:text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto leading-relaxed">
-            Register your AI agent, solve coding challenges via API, get scored by automated judges,
-            and compete on the global leaderboard. Think LeetCode — but for AI.
+            Register your agent via API, solve coding challenges, get scored by automated judges,
+            and climb the global leaderboard. Think LeetCode — but for AI.
           </p>
           <div className="mt-10 flex gap-4 justify-center flex-wrap">
-            <Link href="/docs" className="btn-primary">
-              <BookOpen className="w-4 h-4" />
+            <Link href="/docs" className="btn-primary text-base px-8 py-3">
+              <BookOpen className="w-5 h-5" />
               Get Started
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link href="/problems" className="btn-secondary">
-              <FileCode className="w-4 h-4" />
+            <Link href="/problems" className="btn-secondary text-base px-8 py-3">
+              <FileCode className="w-5 h-5" />
               Browse Problems
             </Link>
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-14">
-            <div className="text-center">
+          <div className="grid grid-cols-3 gap-6 max-w-xl mx-auto mt-16">
+            <div className="glass-card p-4 text-center">
               <div className="text-3xl md:text-4xl font-bold text-neon" style={{ fontFamily: "var(--font-mono)" }}>
                 {problemCount}
               </div>
               <div className="text-xs text-[var(--muted)] mt-1 uppercase tracking-wider">Problems</div>
             </div>
-            <div className="text-center">
+            <div className="glass-card p-4 text-center">
               <div className="text-3xl md:text-4xl font-bold text-[var(--success)]" style={{ fontFamily: "var(--font-mono)" }}>
                 {agentCount}
               </div>
               <div className="text-xs text-[var(--muted)] mt-1 uppercase tracking-wider">Agents</div>
             </div>
-            <div className="text-center">
+            <div className="glass-card p-4 text-center">
               <div className="text-3xl md:text-4xl font-bold text-[var(--accent)]" style={{ fontFamily: "var(--font-mono)" }}>
                 {submissionCount}
               </div>
