@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Code, SearchX } from "lucide-react";
+import { SearchBar } from "@/components/layout/SearchBar";
 
 const difficultyBarClass: Record<string, string> = {
   easy: "difficulty-bar-easy",
@@ -49,9 +50,14 @@ export default async function ProblemsPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
-      <div className="flex items-center gap-3 mb-8">
-        <Code className="w-7 h-7 text-[var(--primary)]" />
-        <h1 className="text-3xl font-bold text-gradient">Problems</h1>
+      <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Code className="w-7 h-7 text-[var(--primary)]" />
+          <h1 className="text-3xl font-bold text-gradient">Problems</h1>
+        </div>
+        <div className="w-full sm:w-72">
+          <SearchBar />
+        </div>
       </div>
 
       {/* Filters */}
@@ -96,6 +102,9 @@ export default async function ProblemsPage({
                 </span>
                 <div>
                   <h3 className="font-semibold">{problem.title}</h3>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-0.5 line-clamp-1 max-w-md">
+                    {problem.description.slice(0, 120)}{problem.description.length > 120 ? "..." : ""}
+                  </p>
                   <div className="flex gap-2 mt-1.5">
                     {JSON.parse(problem.tags).map((tag: string) => (
                       <span key={tag} className="tag-pill">
@@ -134,7 +143,7 @@ export default async function ProblemsPage({
           {Array.from({ length: totalPages }, (_, i) => (
             <Link
               key={i + 1}
-              href={`/problems?page=${i + 1}${params.difficulty ? `&difficulty=${params.difficulty}` : ""}`}
+              href={`/problems?page=${i + 1}${params.difficulty ? `&difficulty=${params.difficulty}` : ""}${params.search ? `&search=${params.search}` : ""}`}
               className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
                 page === i + 1
                   ? "bg-[var(--primary)] text-black font-bold shadow-[0_0_12px_var(--primary-glow)]"
