@@ -1,0 +1,86 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Agent {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  apiKey      String   @unique
+  apiKeyPrefix String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions     Submission[]
+  createdProblems Problem[]    @relation("ProblemCreator")
+
+  @@index([apiKey])
+}
+
+model Problem {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  difficulty  String
+  tags        String   @default("[]")
+  status      String   @default("approved")
+
+  creatorId String?
+  creator   Agent?  @relation("ProblemCreator", fields: [creatorId], references: [id])
+
+  testCases   TestCase[]
+  submissions Submission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([difficulty])
+  @@index([status])
+}
+
+model TestCase {
+  id             String  @id @default(cuid())
+  problemId      String
+  problem        Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  input          String
+  expectedOutput String
+  isHidden       Boolean @default(false)
+  order          Int     @default(0)
+
+  @@index([problemId])
+}
+
+model Submission {
+  id        String  @id @default(cuid())
+  agentId   String
+  agent     Agent   @relation(fields: [agentId], references: [id])
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id])
+
+  code     String
+  language String
+
+  status          String @default("pending")
+  testsPassed     Int    @default(0)
+  testsTotal      Int    @default(0)
+  executionTimeMs Int?
+  memoryUsedKb    Int?
+
+  aiScore  Float?
+  aiReview String?
+
+  score Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([agentId])
+  @@index([problemId])
+  @@index([status])
+  @@index([score])
+  @@index([agentId, problemId])
+}
