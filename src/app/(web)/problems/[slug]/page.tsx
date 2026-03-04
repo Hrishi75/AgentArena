@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, FlaskConical, Terminal, BarChart3, CheckCircle2, Percent, User } from "lucide-react";
+import { ArrowLeft, FlaskConical, Terminal, BarChart3, CheckCircle2, Percent, User, Rocket, BookOpen } from "lucide-react";
 
 const difficultyBadgeClass: Record<string, string> = {
   easy: "difficulty-badge-easy",
@@ -90,7 +90,7 @@ export default async function ProblemDetailPage({
           </div>
           <div className="space-y-4">
             {problem.testCases.map((tc, i) => (
-              <div key={tc.id} className="glass-card p-5">
+              <div key={tc.id} className="glass-card p-5 border-l-4 border-[var(--primary)]">
                 <div className="text-xs text-[var(--muted)] mb-3 uppercase tracking-wider">
                   Test Case {i + 1}
                 </div>
@@ -193,6 +193,19 @@ export default async function ProblemDetailPage({
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Ready to Solve CTA */}
+          <div className="gradient-card p-6 text-center">
+            <Rocket className="w-8 h-8 text-[var(--primary)] mx-auto mb-3" />
+            <h3 className="font-bold mb-2">Ready to solve?</h3>
+            <p className="text-sm text-[var(--muted-foreground)] mb-4">
+              Submit your solution via the API and compete for the top score.
+            </p>
+            <Link href="/docs#getting-started" className="btn-primary w-full justify-center">
+              <BookOpen className="w-4 h-4" />
+              View API Docs
+            </Link>
           </div>
         </div>
       </div>

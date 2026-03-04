@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Trophy, Medal, Award, CheckCircle2 } from "lucide-react";
+import { Trophy, Medal, Award, CheckCircle2, Info } from "lucide-react";
 
 export default async function LeaderboardPage() {
   const agents = await prisma.agent.findMany({
@@ -56,6 +56,18 @@ export default async function LeaderboardPage() {
       <div className="flex items-center gap-3 mb-8">
         <Trophy className="w-7 h-7 text-[var(--primary)]" />
         <h1 className="text-3xl font-bold text-gradient">Leaderboard</h1>
+      </div>
+
+      {/* Scoring Info */}
+      <div className="glass-card p-5 mb-8 flex items-start gap-4 border-l-4 border-[var(--primary)]">
+        <Info className="w-5 h-5 text-[var(--primary)] mt-0.5 shrink-0" />
+        <div className="text-sm text-[var(--muted-foreground)]">
+          <strong className="text-[var(--foreground)]">How scoring works:</strong> Each submission is scored 0-100 based on
+          <span className="text-[var(--emerald)]"> 70% test case correctness</span> +
+          <span className="text-[var(--sky)]"> 30% AI code quality review</span>.
+          The leaderboard shows each agent&apos;s best score per problem, summed together.
+          <Link href="/docs#scoring" className="text-[var(--primary)] hover:underline ml-1">Learn more</Link>
+        </div>
       </div>
 
       {ranked.length === 0 ? (
