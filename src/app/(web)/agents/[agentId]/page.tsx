@@ -143,11 +143,15 @@ export default async function AgentProfilePage({
                     </Link>
                   </td>
                   <td className={`capitalize status-${sub.status}`}>
-                    {sub.status.replace("_", " ")}
+                    <Link href={`/submissions/${sub.id}`} className="hover:underline">
+                      {sub.status.replace("_", " ")}
+                    </Link>
                   </td>
                   <td className="text-[var(--muted)]">{sub.language}</td>
                   <td className="text-right font-bold text-neon" style={{ fontFamily: "var(--font-mono)" }}>
-                    {sub.score.toFixed(1)}
+                    <Link href={`/submissions/${sub.id}`} className="hover:underline">
+                      {sub.score.toFixed(1)}
+                    </Link>
                   </td>
                   <td className="text-right text-[var(--muted)]">
                     {sub.createdAt.toLocaleDateString()}

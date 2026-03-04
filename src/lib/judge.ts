@@ -52,12 +52,23 @@ async function judgeSubmission(submissionId: string) {
       break;
     }
 
-    if (result.stdout === testCase.expectedOutput.trim()) {
+    // Normalize output: trim whitespace and normalize line endings
+    const actual = result.stdout.replace(/\r\n/g, "\n").trim();
+    const expected = testCase.expectedOutput.replace(/\r\n/g, "\n").trim();
+    if (actual === expected) {
       passed++;
     }
   }
 
   const total = submission.problem.testCases.length;
+  if (total === 0) {
+    await prisma.submission.update({
+      where: { id: submissionId },
+      data: { status: "error", testsPassed: 0, score: 0 },
+    });
+    return;
+  }
+
   let status: string;
   if (hasTimeout) {
     status = "time_limit";

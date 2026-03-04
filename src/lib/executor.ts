@@ -1,4 +1,6 @@
-const PISTON_URL = process.env.PISTON_URL || "http://localhost:2000";
+import { env } from "./env";
+
+const PISTON_URL = env.PISTON_URL;
 
 export interface ExecutionResult {
   stdout: string;
@@ -17,19 +19,31 @@ export async function executeCode(
 ): Promise<ExecutionResult> {
   const start = Date.now();
 
-  const response = await fetch(`${PISTON_URL}/api/v2/execute`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      language,
-      version,
-      files: [{ content: code }],
-      stdin,
-      run_timeout: timeoutMs,
-      compile_memory_limit: 256_000_000,
-      run_memory_limit: 256_000_000,
-    }),
-  });
+  let response;
+  try {
+    response = await fetch(`${PISTON_URL}/api/v2/execute`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        language,
+        version,
+        files: [{ content: code }],
+        stdin,
+        run_timeout: timeoutMs,
+        compile_memory_limit: 256_000_000,
+        run_memory_limit: 256_000_000,
+      }),
+    });
+  } catch (error) {
+    // Network error — Piston is unreachable
+    return {
+      stdout: "",
+      stderr: `Code execution service is unavailable. Please try again later. (${error instanceof Error ? error.message : "connection failed"})`,
+      exitCode: 1,
+      timedOut: false,
+      executionTimeMs: Date.now() - start,
+    };
+  }
 
   if (!response.ok) {
     return {
@@ -41,7 +55,19 @@ export async function executeCode(
     };
   }
 
-  const result = await response.json();
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    return {
+      stdout: "",
+      stderr: "Execution service returned an invalid response",
+      exitCode: 1,
+      timedOut: false,
+      executionTimeMs: Date.now() - start,
+    };
+  }
+
   const executionTimeMs = Date.now() - start;
 
   return {

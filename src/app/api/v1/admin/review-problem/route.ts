@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, apiError } from "@/lib/api-response";
+import { authenticateAdmin } from "@/lib/admin-auth";
 
 const reviewSchema = z.object({
   problemId: z.string(),
@@ -9,6 +10,9 @@ const reviewSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const authError = authenticateAdmin(request);
+  if (authError) return authError;
+
   let body;
   try {
     body = await request.json();

@@ -1,10 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "./prisma";
+import { env } from "./env";
 import { AI_QUALITY_WEIGHT, CORRECTNESS_WEIGHT } from "./constants";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 export function triggerAiEvaluation(submissionId: string) {
   setImmediate(() => evaluateWithAi(submissionId));
@@ -17,6 +14,37 @@ async function evaluateWithAi(submissionId: string) {
   });
   if (!submission) return;
 
+  // Guard against division by zero
+  if (submission.testsTotal === 0) {
+    await prisma.submission.update({
+      where: { id: submissionId },
+      data: { score: 0 },
+    });
+    return;
+  }
+
+  const correctnessScore =
+    (submission.testsPassed / submission.testsTotal) * CORRECTNESS_WEIGHT * 100;
+
+  // If no Anthropic API key, score on correctness only (full weight)
+  if (!env.hasAnthropicKey) {
+    const correctnessOnlyScore =
+      (submission.testsPassed / submission.testsTotal) * 100;
+    await prisma.submission.update({
+      where: { id: submissionId },
+      data: {
+        score: correctnessOnlyScore,
+        aiReview: "_AI evaluation skipped: ANTHROPIC_API_KEY not configured._",
+      },
+    });
+    return;
+  }
+
+  // Escape code for safe embedding in prompt
+  const escapedCode = submission.code
+    .replace(/\\/g, "\\\\")
+    .replace(/`/g, "\\`");
+
   const prompt = `You are an expert code reviewer and judge for a competitive programming platform.
 
 ## Problem
@@ -26,7 +54,7 @@ ${submission.problem.description}
 
 ## Submitted Solution (${submission.language})
 \`\`\`${submission.language}
-${submission.code}
+${escapedCode}
 \`\`\`
 
 ## Test Results
@@ -44,6 +72,8 @@ Respond with EXACTLY this JSON structure (no other text):
 {"score": <number 0-100>, "review": "<markdown string with detailed feedback>"}`;
 
   try {
+    const anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1024,
@@ -51,14 +81,22 @@ Respond with EXACTLY this JSON structure (no other text):
     });
 
     const content = message.content[0];
-    if (content.type !== "text") return;
+    if (content.type !== "text") {
+      console.error(`AI evaluation: unexpected content type for submission ${submissionId}`);
+      return;
+    }
 
-    const parsed = JSON.parse(content.text);
-    const aiScore = Math.max(0, Math.min(100, parsed.score));
-    const aiReview = parsed.review;
+    // Try to extract JSON from the response (handle markdown code blocks)
+    let jsonText = content.text.trim();
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonText = jsonMatch[0];
+    }
 
-    const correctnessScore =
-      (submission.testsPassed / submission.testsTotal) * CORRECTNESS_WEIGHT * 100;
+    const parsed = JSON.parse(jsonText);
+    const aiScore = Math.max(0, Math.min(100, Number(parsed.score) || 0));
+    const aiReview = String(parsed.review || "No review provided.");
+
     const qualityScore = (aiScore / 100) * AI_QUALITY_WEIGHT * 100;
     const totalScore = correctnessScore + qualityScore;
 
@@ -68,5 +106,13 @@ Respond with EXACTLY this JSON structure (no other text):
     });
   } catch (error) {
     console.error(`AI evaluation failed for submission ${submissionId}:`, error);
+    // Fallback: score on correctness only so the submission isn't stuck
+    await prisma.submission.update({
+      where: { id: submissionId },
+      data: {
+        score: correctnessScore,
+        aiReview: "_AI evaluation failed. Score based on correctness only._",
+      },
+    });
   }
 }

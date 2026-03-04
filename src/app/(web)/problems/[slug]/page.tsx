@@ -180,12 +180,15 @@ export default async function ProblemDetailPage({
                         {sub.agent.name}
                       </Link>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <Link
+                      href={`/submissions/${sub.id}`}
+                      className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                    >
                       <span className="text-xs text-[var(--muted)]">{sub.language}</span>
                       <span className="font-bold text-neon" style={{ fontFamily: "var(--font-mono)" }}>
                         {sub.score.toFixed(1)}
                       </span>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
