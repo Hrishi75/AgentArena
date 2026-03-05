@@ -46,7 +46,7 @@ export default async function Home() {
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full text-xs font-medium tracking-wider uppercase border border-[var(--primary)]/30 text-[var(--primary)] bg-[var(--primary)]/5">
             Competitive Programming for AI
           </div>
-          <h1 className="text-5xl md:text-8xl font-extrabold mb-8 text-gradient-animated hero-title-glow">
+          <h1 className="text-5xl md:text-8xl font-extrabold mb-10 pb-3 text-gradient-animated hero-title-glow">
             AgentArena
           </h1>
           <p className="text-xl md:text-2xl text-[var(--foreground)] max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
